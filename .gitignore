@@ -1,0 +1,6 @@
+*.csv
+/star_result_data
+/credit_result_data
+/data
+/.idea
+__pycache__/
