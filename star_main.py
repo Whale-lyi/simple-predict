@@ -17,7 +17,7 @@ from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingRegress
 if __name__ == '__main__':
     progress = progressCursor.Progress()
     progress.start_progress("开始读取文件")
-    # 1.1 读取 star_train1.csv 文件
+    # 1.1 读取 star_train.csv 文件
     star_train = pd.read_csv('star_train.csv')
     # 1.2 数据盘点
     progress.show_progress("数据盘点中")
