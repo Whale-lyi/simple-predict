@@ -78,6 +78,7 @@ if __name__ == '__main__':
     # credit_train.fillna(credit_train.mode().iloc[0], inplace=True)
 
     # 检查每一列的数据类型，通过机器学习模型对数值型变量和类别型变量进行填充
+    progress.show_progress("使用机器学习处理缺失值中")
     for column in colist:
         # 去除缺失值后获得训练集
         X = credit_train[colist].dropna(subset=[column]).drop(columns=[column])
@@ -111,6 +112,7 @@ if __name__ == '__main__':
     print("完成！请查看 credit_train_std.csv")
 
     # 3 特征工程
+    progress.start_progress("特征工程处理中")
     # 3.1 计算连续型变量的方差
     # 计算变量方差并保存到 credit_train_var.csv 文件
     credit_train[colist].var().to_csv('credit_result_data/credit_train_var.csv')
@@ -137,8 +139,10 @@ if __name__ == '__main__':
 
     catelist = [i for i in catelist if i in colist]
     numlist = [i for i in numlist if i in colist]
+    progress.stop_progress()
 
     # 4 模型预测
+    progress.start_progress("模型训练中")
     # 将数据集分为训练集和测试集
     X_train, X_test, y_train, y_test = train_test_split(credit_train[colist],
                                                         credit_train['credit_level'],
@@ -175,6 +179,8 @@ if __name__ == '__main__':
     # 预测测试集的标签
     y_pred = xgb_clf.predict(X_test)
 
+    progress.stop_progress()
+
     # 5 模型评估
     # 5.1 计算准确率
     # 计算准确率
@@ -202,35 +208,36 @@ if __name__ == '__main__':
     kappa = cohen_kappa_score(y_test, y_pred)
     print("Cohen's Kappa系数为: ", kappa)
 
-    # # 6 模型应用
-    # credit_test = pd.read_csv('credit_test.csv')
-    # # 6.1 数据处理
-    # # 去重
-    # credit_test = credit_test.drop_duplicates()
-    # # 对于数值型变量，用中位数填充缺失值
-    # credit_test.loc[:, numlist] = credit_test[numlist].fillna(credit_test[numlist].median())
-    # # 对于类别型变量，用众数填充缺失值
-    # credit_test.fillna(credit_test.mode().iloc[0], inplace=True)
-    # # 6.1.2 数据转换
-    # le = LabelEncoder()
-    # credit_test[catelist] = credit_test[catelist].apply(le.fit_transform)
-    # # 6.1.3 数据归一化
-    # scaler = MinMaxScaler()
-    # credit_test[colist] = scaler.fit_transform(credit_test[colist])
-    # # 6.1.4 数据标准化
-    # scaler = StandardScaler()
-    # credit_test[colist] = scaler.fit_transform(credit_test[colist])
-    # # 6.2 模型预测
-    # # 6.2.1 逻辑回归模型
-    # # y_pred = lr.predict(credit_test[colist])
-    # # 6.2.2 决策树模型
-    # # y_pred = dt.predict(credit_test[colist])
-    # # 6.2.3 随机森林模型
-    # # y_pred = rf.predict(credit_test[colist])
-    # # 6.2.4 XGBoost模型
-    # y_pred = xgb_clf.predict(credit_test[colist])
-    # # 对预测结果进行处理
-    # y_pred = y_pred.astype(int)
-    # # 保存预测结果至 credit_test_xgb.csv 文件
-    # credit_test['credit_level'] = y_pred
-    # credit_test.to_csv('credit_result_data/credit_test_rf.csv', index=False)
+    # 6 模型应用
+    credit_test = pd.read_csv('credit_test.csv')
+    # 6.1 数据处理
+    # 去重
+    credit_test = credit_test.drop_duplicates()
+    # 对于数值型变量，用中位数填充缺失值
+    credit_test.loc[:, numlist] = credit_test[numlist].fillna(credit_test[numlist].median())
+    # 对于类别型变量，用众数填充缺失值
+    credit_test.fillna(credit_test.mode().iloc[0], inplace=True)
+    # 6.1.2 数据转换
+    label = LabelEncoder()
+    credit_test[catelist] = credit_test[catelist].apply(label.fit_transform)
+    # 6.1.3 数据归一化
+    scaler = MinMaxScaler()
+    credit_test[colist] = scaler.fit_transform(credit_test[colist])
+    # 6.1.4 数据标准化
+    scaler = StandardScaler()
+    credit_test[colist] = scaler.fit_transform(credit_test[colist])
+    # 6.2 模型预测
+    # 6.2.1 逻辑回归模型
+    # y_pred = lr.predict(credit_test[colist])
+    # 6.2.2 决策树模型
+    # y_pred = dt.predict(credit_test[colist])
+    # 6.2.3 随机森林模型
+    # y_pred = rf.predict(credit_test[colist])
+    # 6.2.4 XGBoost模型
+    y_pred = xgb_clf.predict(credit_test[colist])
+    y_pred = le.inverse_transform(y_pred)
+    # 对预测结果进行处理
+    y_pred = y_pred.astype(int)
+    # 保存预测结果至 credit_test_xgb.csv 文件
+    credit_test['credit_level'] = y_pred
+    credit_test.to_csv('credit_result_data/credit_test_xgb.csv', index=False)

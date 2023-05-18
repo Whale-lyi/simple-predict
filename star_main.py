@@ -76,6 +76,7 @@ if __name__ == '__main__':
     # star_train.fillna(star_train.mode().iloc[0], inplace=True)
 
     # 检查每一列的数据类型，通过机器学习模型对数值型变量和类别型变量进行填充
+    progress.show_progress("使用机器学习处理缺失值中")
     for column in colist:
         # 去除缺失值后获得训练集
         X = star_train[colist].dropna(subset=[column]).drop(columns=[column])
@@ -109,6 +110,7 @@ if __name__ == '__main__':
     print("完成！请查看 star_train_std.csv")
 
     # 3 特征工程
+    progress.start_progress("特征工程处理中")
     # 3.1 计算连续型变量的方差
     # 计算变量方差并保存到 star_train_var.csv 文件
     star_train[colist].var().to_csv('star_result_data/star_train_var.csv')
@@ -135,8 +137,10 @@ if __name__ == '__main__':
 
     catelist = [i for i in catelist if i in colist]
     numlist = [i for i in numlist if i in colist]
+    progress.stop_progress()
 
     # 4 模型预测
+    progress.start_progress("模型训练中")
     # 将数据集分为训练集和测试集
     X_train, X_test, y_train, y_test = train_test_split(star_train[colist],
                                                         star_train['star_level'],
@@ -173,6 +177,8 @@ if __name__ == '__main__':
     # 预测测试集的标签
     y_pred = xgb_clf.predict(X_test)
 
+    progress.stop_progress()
+
     # 5 模型评估
     # 5.1 计算准确率
     # 计算准确率
@@ -203,13 +209,15 @@ if __name__ == '__main__':
     # 6 模型应用
     star_test = pd.read_csv('star_test.csv')
     # 6.1 数据处理
+    # 去重
+    star_test = star_test.drop_duplicates()
     # 对于数值型变量，用中位数填充缺失值
     star_test.loc[:, numlist] = star_test[numlist].fillna(star_test[numlist].median())
     # 对于类别型变量，用众数填充缺失值
     star_test.fillna(star_test.mode().iloc[0], inplace=True)
     # 6.1.2 数据转换
-    le = LabelEncoder()
-    star_test[catelist] = star_test[catelist].apply(le.fit_transform)
+    label = LabelEncoder()
+    star_test[catelist] = star_test[catelist].apply(label.fit_transform)
     # 6.1.3 数据归一化
     scaler = MinMaxScaler()
     star_test[colist] = scaler.fit_transform(star_test[colist])
@@ -225,6 +233,7 @@ if __name__ == '__main__':
     # y_pred = rf.predict(star_test[colist])
     # 6.2.4 XGBoost模型
     y_pred = xgb_clf.predict(star_test[colist])
+    y_pred = le.inverse_transform(y_pred)
     # 对预测结果进行处理
     y_pred = y_pred.astype(int)
     # 保存预测结果至 star_test_xgb.csv 文件
