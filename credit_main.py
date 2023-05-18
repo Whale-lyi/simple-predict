@@ -162,22 +162,22 @@ if __name__ == '__main__':
     # # 预测
     # y_pred = dt.predict(X_test)
 
-    # # 4.3 随机森林模型
-    # # 训练模型
-    # rf = RandomForestClassifier()
-    # rf.fit(X_train, y_train)
-    # # 预测
-    # y_pred = rf.predict(X_test)
+    # 4.3 随机森林模型
+    # 训练模型
+    rf = RandomForestClassifier()
+    rf.fit(X_train, y_train)
+    # 预测
+    y_pred = rf.predict(X_test)
 
-    # 4.4 XGBoost模型
-    y_train = le.fit_transform(y_train)
-    y_test = le.transform(y_test)
-    # 构建XGBoost分类器
-    xgb_clf = xgb.XGBClassifier()
-    # 训练XGBoost分类器
-    xgb_clf.fit(X_train, y_train)
-    # 预测测试集的标签
-    y_pred = xgb_clf.predict(X_test)
+    # # 4.4 XGBoost模型
+    # y_train = le.fit_transform(y_train)
+    # y_test = le.transform(y_test)
+    # # 构建XGBoost分类器
+    # xgb_clf = xgb.XGBClassifier()
+    # # 训练XGBoost分类器
+    # xgb_clf.fit(X_train, y_train)
+    # # 预测测试集的标签
+    # y_pred = xgb_clf.predict(X_test)
 
     progress.stop_progress()
 
@@ -232,12 +232,12 @@ if __name__ == '__main__':
     # 6.2.2 决策树模型
     # y_pred = dt.predict(credit_test[colist])
     # 6.2.3 随机森林模型
-    # y_pred = rf.predict(credit_test[colist])
+    y_pred = rf.predict(credit_test[colist])
     # 6.2.4 XGBoost模型
-    y_pred = xgb_clf.predict(credit_test[colist])
-    y_pred = le.inverse_transform(y_pred)
+    # y_pred = xgb_clf.predict(credit_test[colist])
+    # y_pred = le.inverse_transform(y_pred)
     # 对预测结果进行处理
     y_pred = y_pred.astype(int)
     # 保存预测结果至 credit_test_xgb.csv 文件
     credit_test['credit_level'] = y_pred
-    credit_test.to_csv('credit_result_data/credit_test_xgb.csv', index=False)
+    credit_test.to_csv('credit_result_data/credit_test_rf.csv', index=False)
