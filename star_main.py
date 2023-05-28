@@ -238,4 +238,6 @@ if __name__ == '__main__':
     y_pred = y_pred.astype(int)
     # 保存预测结果至 star_test_xgb.csv 文件
     star_test['star_level'] = y_pred
+    star_test = star_test[['uid', 'star_level']]
+    star_test = star_test.drop_duplicates()
     star_test.to_csv('star_result_data/star_test_xgb.csv', index=False)

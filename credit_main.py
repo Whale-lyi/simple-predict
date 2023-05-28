@@ -240,4 +240,6 @@ if __name__ == '__main__':
     y_pred = y_pred.astype(int)
     # 保存预测结果至 credit_test_xgb.csv 文件
     credit_test['credit_level'] = y_pred
+    credit_test = credit_test[['uid', 'credit_level']]
+    credit_test = credit_test.drop_duplicates()
     credit_test.to_csv('credit_result_data/credit_test_rf.csv', index=False)
